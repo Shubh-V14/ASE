@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+<script src="D:\\jsaes-0.1\\FileSaver.js-master\\src\\FileSaver.js"></script>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <p>
+    <input type="file" name="datafile" size="40" id="fileToLoad"><br><br>
+    Password <input type="text" placeholder="Type your password here" id="key"><br><br>
+    <button onclick="encrypt()">Encrypt Data</button>
+    <button onclick="decrypt()">Decrypt Data</button>
+    </p>
+    <p id="link">
+    </p>
+  </body>
+
+  <script type="text/javascript">
+    var textFromFileLoaded,encrypted,key,filename;
+
+    function basics(){
+      filename = document.getElementById("fileToLoad").value;
+      filename = filename.split("\\");
+      length = Object.keys(filename).length;
+      filename = filename[length-1];
+      //console.log(filename);
+      key = document.getElementById("key").value;
+      //console.log(key);
+    }
+
+    function loadFileAsText(){
+      var fileToLoad = document.getElementById("fileToLoad").files[0];
+
+      var fileReader = new FileReader();
+      fileReader.onload = function(fileLoadedEvent){
+          textFromFileLoaded = fileLoadedEvent.target.result;
+          encrypted = CryptoJS.AES.encrypt(textFromFileLoaded, key);
+          encrypted = encrypted.toString();
+          var blob = [
+            new Blob([encrypted]),
+          ];
+
+          var file = new File(blob,filename,{
+          });
+          console.log(file);
+      };
+      fileReader.readAsText(fileToLoad, "UTF-8");
+      //fr.readAsText(file);
+    }
+
+    function encrypt(){
+        basics();
+        loadFileAsText();
+    }
+
+    function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        //element.style.display = 'none';
+        //document.body.appendChild(element);
+
+        element.click();
+
+        //document.body.removeChild(element);
+    }
+
+    function decrypt(){
+      //encrypt();
+      var decrypted = CryptoJS.AES.decrypt(encrypted, key);
+      download(filename, decrypted.toString(CryptoJS.enc.Utf8));
+     }
+
+  </script>
+</html>
