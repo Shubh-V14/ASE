@@ -1,78 +1,109 @@
-<!DOCTYPE html>
+<!--this is a test html page-->
+<!--script is used to include libraries that are useful for encryption decryption-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
-<script src="D:\\jsaes-0.1\\FileSaver.js-master\\src\\FileSaver.js"></script>
+<script src="D:\\ASE Project\\FileSaver.js-master\\src\\FileSaver.js"></script>
+
+<!--start of html body-->
 <html lang="en" dir="ltr">
   <head>
+    <!--defining the code of conduct for language to be followed-->
     <meta charset="utf-8">
-    <title></title>
+    <title>Cryptography</title>
   </head>
   <body>
-    <p>
+    <p id = "info">
+      <!--taking password and file for encryption-->
     <input type="file" name="datafile" size="40" id="fileToLoad"><br><br>
-    Password <input type="text" placeholder="Type your password here" id="key"><br><br>
-    <button onclick="encrypt()">Encrypt Data</button>
-    <button onclick="decrypt()">Decrypt Data</button>
-    </p>
-    <p id="link">
+    Password <input type="text" placeholder="Type your encryption password here" id="key1"><br><br>
+    <!--button calls encrypt function of javascript -->
+    <button onclick="encrypt()">Encrypt Data</button><br><br>
     </p>
   </body>
 
   <script type="text/javascript">
-    var textFromFileLoaded,encrypted,key,filename;
 
-    function basics(){
-      filename = document.getElementById("fileToLoad").value;
+    // defining function to get the uploaded file name
+    function fname(){
+      var filename = document.getElementById("fileToLoad").value; //gives us a fake path
       filename = filename.split("\\");
       length = Object.keys(filename).length;
       filename = filename[length-1];
-      //console.log(filename);
-      key = document.getElementById("key").value;
-      //console.log(key);
+      return filename
+      // full process runned to get the file name with extension
     }
 
-    function loadFileAsText(){
-      var fileToLoad = document.getElementById("fileToLoad").files[0];
+    function loadFile(filename,key){
+      var fileToLoad = document.getElementById("fileToLoad").files[0]; // another way of getting file name
 
-      var fileReader = new FileReader();
+      var fileReader = new FileReader();    //as the per the name
       fileReader.onload = function(fileLoadedEvent){
-          textFromFileLoaded = fileLoadedEvent.target.result;
-          encrypted = CryptoJS.AES.encrypt(textFromFileLoaded, key);
-          encrypted = encrypted.toString();
+          textFromFileLoaded = fileLoadedEvent.target.result;    // performs the task of retreval of text from the file
+
+          encrypted = CryptoJS.AES.encrypt(textFromFileLoaded, key); //inbuild encrypt function of cryptojs
+          encrypted = encrypted.toString();     //getting object value in string
           var blob = [
             new Blob([encrypted]),
-          ];
+          ];    //this represents file-like object of raw data
 
           var file = new File(blob,filename,{
+          });       //file pointer
+
+          // use of dom(document object model) in js
+          //this should be only when a file is encrypted hence it appears only then
+          var text = document.createTextNode("Password ");
+          var Dpassword = document.createElement("input");
+          Dpassword.type = "text";
+          Dpassword.id = "key2";
+          Dpassword.placeholder = "Type your decryption password here";
+          document.getElementById("info").appendChild(text);
+          document.getElementById("info").appendChild(Dpassword);
+          document.getElementById("info").appendChild(document.createElement("br"));
+          document.getElementById("info").appendChild(document.createElement("br"));
+
+          var passparameter = document.createElement("input");
+          passparameter.type = "button";
+          passparameter.value = "Decrypt Data";
+          passparameter.addEventListener('click',function(){
+            decrypt(encrypted);
           });
-          console.log(file);
+          document.getElementById("info").appendChild(passparameter);
+          document.getElementById("info").appendChild(document.createElement("br"));
+          document.getElementById("info").appendChild(document.createElement("br"));
+          // whole process for password and calling of decrypt function
       };
-      fileReader.readAsText(fileToLoad, "UTF-8");
-      //fr.readAsText(file);
+
+      fileReader.readAsText(fileToLoad, "UTF-8");     // call for reading the file
     }
 
+    // encrypt data
     function encrypt(){
-        basics();
-        loadFileAsText();
+        var filename = fname();
+        var key = document.getElementById("key1").value;    // the key for the file
+        loadFile(filename,key);
     }
 
+    // this directly downloads the decrypted file wuth matching name and key
     function download(filename, text) {
+        // silimar dom usage as above
         var element = document.createElement('a');
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
         element.setAttribute('download', filename);
 
-        //element.style.display = 'none';
-        //document.body.appendChild(element);
+        element.style.display = 'none';
+        document.body.appendChild(element);
 
         element.click();
 
-        //document.body.removeChild(element);
+        document.body.removeChild(element);
     }
 
     function decrypt(){
-      //encrypt();
+      //decrypting the encrypted data from the file by using filename and key
+      var filename = fname();
+      var key = document.getElementById("key2").value;
       var decrypted = CryptoJS.AES.decrypt(encrypted, key);
       download(filename, decrypted.toString(CryptoJS.enc.Utf8));
      }
-
+     // if the key of encryption and key of decryption doesn't matche it downloads empty text file 
   </script>
 </html>
